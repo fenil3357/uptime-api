@@ -6,6 +6,8 @@ import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.const
 import { handleResponse } from "../../helper/response/handleResponse";
 
 import { createUser, deleteOneUser, getOneUser } from "../../services/database/user/user.service";
+import { generateHtmlTemplateForEmailVerification } from "../../services/email/email.templates";
+import { sendEmailService } from "../../services/email/email.service";
 
 export const createUserController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -47,6 +49,18 @@ export const createUserController = async (req: Request, res: Response, next: Ne
     });
 
     // Send verification email
+    const html_template_for_verification_email = generateHtmlTemplateForEmailVerification({
+      name,
+      link: 'www.google.com'
+    });
+
+    await sendEmailService({
+      from: 'info@citynect.in',
+      to: 'najad10517@regishub.com',
+      html: '<p> Test </P>',
+      subject: 'Verify Your Email'
+    })
+
     return handleResponse(res,
       {
         message: 'New user created successfully',
