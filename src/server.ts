@@ -2,17 +2,15 @@ import express, { NextFunction, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client';
 import helmet from 'helmet';
 import cors from 'cors'
-import * as dotenv from 'dotenv'
 import morgan from 'morgan'
 
 import indexRouter from './routes';
 import { CustomError, handleError, NotFoundError } from './helper/errors/custom-errors';
-
-dotenv.config();
+import { ENV_VALUES } from './config/env/env.config';
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 8002;
+const PORT = ENV_VALUES.PORT || 8002;
 
 app.use(cors());
 app.use(helmet());
@@ -40,7 +38,7 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, async () => {
   try {
     await prisma.$connect();
-    console.log(`Server is listening on port ${PORT}!!!`);
+    console.log(`Server is listening on port ${PORT} in ${ENV_VALUES.GLOBAL_ENV} environment!!!`);
   } catch (error) {
     console.log(`Some error occurred while starting the server`, error);
   }
