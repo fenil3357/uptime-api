@@ -1,0 +1,141 @@
+import { NextFunction, Request, Response } from "express";
+import { google } from "googleapis";
+
+import { BadRequestError, CustomError, UnAuthorizationError } from "../../helper/errors/custom-errors";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
+import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config";
+import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants";
+import { handleResponse } from "../../helper/response/handleResponse";
+import { createUser, getOneUser } from "../../services/database/user/user.service";
+import { generateToken } from "../../services/jwt/jwt";
+import { decryption, encryption } from "../../services/encryption/encryption";
+import { ENV_VALUES } from "../../config/env/env.config";
+
+export const googleAuthController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    let redirectUrl = req?.query?.redirect;
+
+    const googleAuthUrl: string = oauth2ClientGoogleAuth.generateAuthUrl({
+      access_type: 'offline',
+      scope: GOOGLE_OAUTH_LOGIN_SCOPES,
+      state: JSON.stringify({
+        redirect: redirectUrl?.toString() || undefined
+      })
+    })
+
+    return handleResponse(
+      res,
+      {
+        message: 'Google auth url fetched successfully',
+        data: {
+          authUrl: googleAuthUrl
+        }
+      },
+      httpStatusCodes['OK']
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ googleAuthController= ~ error:", error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong in google auth.',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const googleAuthCallbackController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const code = req?.query?.code;
+    const state: any = req?.query?.state;
+    const stateData = JSON.parse(state);
+
+    if (!code) {
+      throw new UnAuthorizationError('Code not provided');
+    }
+
+    const oauth2Client = generateOauth2Client();
+    const { tokens } = await oauth2Client.getToken(code as string);
+    oauth2Client.setCredentials(tokens);
+
+    const { data } = await google.oauth2("v2").userinfo.get({
+      auth: oauth2Client
+    });
+
+    const userExists = await getOneUser({
+      email: data.email as string
+    }, {
+      id: true,
+      email: true,
+      monitors: true
+    });
+
+    if (!userExists) {
+      await createUser({
+        name: data.name as string,
+        email: data.email as string,
+        auth_provider: 'GOOGLE',
+        email_verified: true
+      })
+    }
+
+    const user = await getOneUser({
+      email: data?.email as string
+    }, {
+      id: true,
+      email: true,
+      name: true,
+      monitors: true
+    })
+
+    // Generate access token
+    const access_token: string = generateToken({
+      id: user?.id,
+      email: user?.email
+    });
+
+    // Encrypt data
+    const encrypted: string = encryption({
+      tokens: {
+        access_token
+      },
+      user: user
+    }, 10 * 60 * 1000) // 10 minutes into ms
+
+    return res.redirect(`${ENV_VALUES.CLIENT_ENDPOINT}/api/v1/auth/google/encryption?encrypted=${encrypted}`);
+  } catch (error: any) {
+    console.log("🚀 ~ googleAuthCallbackController ~ error:", error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong in google callback.',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const googleAuthEncryptionController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const { encrypted } = req?.query;
+
+    if (!encrypted) throw new BadRequestError('Encrypted text not provided');
+
+    const data = decryption(encrypted as string);
+    return handleResponse(
+      res,
+      {
+        message: 'Data decrypted successfully',
+        data
+      },
+      httpStatusCodes['OK']
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ googleAuthEncryptionController ~ error:", error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong in google auth encryption controller',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
