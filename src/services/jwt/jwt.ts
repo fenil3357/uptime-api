@@ -8,7 +8,7 @@ export function generateToken(payload: any, expiresIn = JWT_EXPIRATION) {
   return jwt.sign(payload, JWT_SECRET as string, { expiresIn: expiresIn });
 }
 
-export async function verifyToken(token: string) {
+export function verifyToken(token: string) {
   try {
     return jwt.verify(token, JWT_SECRET as string);
   } catch (error) {

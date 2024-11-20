@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { createUserController } from "../../controllers/auth/auth.controller";
 import { authValidator } from "../../validators/auth/auth.validator";
 import { AUTH_ENDPOINTS_CONSTANTS } from "../../constant/auth/auth.constants";

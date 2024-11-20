@@ -15,7 +15,7 @@ const PORT = ENV_VALUES.PORT || 8002;
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
-app.use(morgan("combined"))
+app.use(morgan((ENV_VALUES.GLOBAL_ENV === 'development') ? "dev" : "combined"))
 app.use(express.urlencoded({
   limit: '50mb',
   extended: true
