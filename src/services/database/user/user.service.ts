@@ -52,3 +52,18 @@ export const deleteOneUser = async (query: Prisma.UserWhereUniqueInput): Promise
     );
   }
 }
+
+export const updateOneUser = async (query: Prisma.UserWhereUniqueInput, dataToUpdate: Prisma.UserUpdateInput): Promise<User | null> => {
+  try {
+    return await prisma.user.update({
+      data: dataToUpdate,
+      where: query
+    })
+  } catch (error: any) {
+    console.log("🚀 ~ updateUser ~ error:", error)
+    throw new CustomError(
+      error?.message || 'Something went wrong while updating user.',
+      error?.statusCode || httpStatusCodes['Internal Server Error']
+    )
+  }
+}
