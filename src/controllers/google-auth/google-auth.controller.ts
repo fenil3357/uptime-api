@@ -6,7 +6,7 @@ import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.const
 import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config";
 import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants";
 import { handleResponse } from "../../helper/response/handleResponse";
-import { createUser, getOneUser } from "../../services/database/user/user.service";
+import { createUser, getOneUser, updateOneUser } from "../../services/database/user/user.service";
 import { generateToken } from "../../services/jwt/jwt";
 import { decryption, encryption } from "../../services/encryption/encryption";
 import { ENV_VALUES } from "../../config/env/env.config";
@@ -75,8 +75,18 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
         name: data.name as string,
         email: data.email as string,
         auth_provider: 'GOOGLE',
-        email_verified: true
-      })
+        email_verified: true,
+        avatar: data.picture
+      });
+    }
+    else {
+      // Update the details
+      await updateOneUser({
+        email: userExists.email
+      }, {
+        avatar: data?.picture || undefined,
+        name: data?.name || undefined
+      });
     }
 
     const user = await getOneUser({
