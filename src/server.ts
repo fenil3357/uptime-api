@@ -4,9 +4,14 @@ import helmet from 'helmet';
 import cors from 'cors'
 import morgan from 'morgan'
 
-import indexRouter from './routes';
-import { CustomError, handleError, NotFoundError } from './helper/errors/custom-errors';
-import { ENV_VALUES } from './config/env/env.config';
+import indexRouter from './routes/index.js';
+import { CustomError, handleError, NotFoundError } from './helper/errors/custom-errors.js';
+import { ENV_VALUES } from './config/env/env.config.js';
+import { scheduleCronJob } from './services/cron/cron.service.js';
+import { CRON_JOBS } from './constant/cron/cron.constants.js';
+
+// Import job workers
+import './services/bull/workers/bull-workers.service.js'
 
 const app = express();
 const prisma = new PrismaClient();
@@ -38,6 +43,7 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, async () => {
   try {
     await prisma.$connect();
+    await scheduleCronJob(CRON_JOBS.REGULAR_MONITOR_CHECK);
     console.log(`Server is listening on port ${PORT} in ${ENV_VALUES.GLOBAL_ENV} environment!!!`);
   } catch (error) {
     console.log(`Some error occurred while starting the server`, error);

@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { createUserController } from "../../controllers/auth/auth.controller";
-import { authValidator } from "../../validators/auth/auth.validator";
-import { AUTH_ENDPOINTS_CONSTANTS } from "../../constant/auth/auth.constants";
-import { handleValidationErrors } from "../../validators/handleValidationErrors";
+import { createUserController } from "../../controllers/auth/auth.controller.js";
+import { authValidator } from "../../validators/auth/auth.validator.js";
+import { AUTH_ENDPOINTS_CONSTANTS } from "../../constant/auth/auth.constants.js";
+import { handleValidationErrors } from "../../validators/handleValidationErrors.js";
 
 const authRouter = Router();
 

@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import userRouter from "./user/user.routes";
-import authRouter from "./auth/auth.routes";
-import googleAuthRouter from "./google-auth/google-auth.routes";
-import monitorRouter from "./monitor/monitor.routes";
+import userRouter from "./user/user.routes.js";
+import authRouter from "./auth/auth.routes.js";
+import googleAuthRouter from "./google-auth/google-auth.routes.js";
+import monitorRouter from "./monitor/monitor.routes.js";
 
 const indexRouter = Router();
 

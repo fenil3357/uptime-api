@@ -1,10 +1,10 @@
 import { NextFunction, Response, Request } from "express";
-import { CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
-import { IRequestWithUser } from "../../types/utils.interface";
-import { createMonitor } from "../../services/database/monitor/monitor.service";
-import { handleResponse } from "../../helper/response/handleResponse";
-import { updateUserMonitorCount } from "../../services/database/user/user.service";
+import { CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
+import { IRequestWithUser } from "../../types/utils.interface.js";
+import { createMonitor } from "../../services/database/monitor/monitor.service.js";
+import { handleResponse } from "../../helper/response/handleResponse.js";
+import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
 
 
 export const createMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {

@@ -1,7 +1,7 @@
 import { body, ValidationChain } from "express-validator";
 import { MonitorType, RequestMethodType } from "@prisma/client";
 
-import { MONITOR_ENDPOINTS_CONSTANTS, MONITOR_VALIDATOR_ENDPOINTS_TYPES } from "../../constant/monitor/monitor.constants";
+import { MONITOR_ENDPOINTS_CONSTANTS, MONITOR_VALIDATOR_ENDPOINTS_TYPES } from "../../constant/monitor/monitor.constants.js";
 
 export const monitorValidator = (method: MONITOR_VALIDATOR_ENDPOINTS_TYPES): ValidationChain[] => {
   let errors: ValidationChain[] = [];

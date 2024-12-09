@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-import { userAuthMiddleware } from "../../middleware/auth.middleware";
-import { createMonitorController } from "../../controllers/monitor/monitor.controller";
-import { monitorValidator } from "../../validators/monitor/monitor.validator";
-import { MONITOR_ENDPOINTS_CONSTANTS } from "../../constant/monitor/monitor.constants";
-import { handleValidationErrors } from "../../validators/handleValidationErrors";
+import { userAuthMiddleware } from "../../middleware/auth.middleware.js";
+import { createMonitorController } from "../../controllers/monitor/monitor.controller.js";
+import { monitorValidator } from "../../validators/monitor/monitor.validator.js";
+import { MONITOR_ENDPOINTS_CONSTANTS } from "../../constant/monitor/monitor.constants.js";
+import { handleValidationErrors } from "../../validators/handleValidationErrors.js";
 
 const monitorRouter = Router();
 

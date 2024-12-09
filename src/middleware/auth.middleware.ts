@@ -1,10 +1,10 @@
 import { Response, NextFunction } from "express";
 
-import { CustomError, UnAuthorizationError } from "../helper/errors/custom-errors";
-import { httpStatusCodes } from "../constant/httpStatus/httpStatusCodes.constants";
-import { verifyToken } from "../services/jwt/jwt";
-import { getOneUser } from "../services/database/user/user.service";
-import { IRequestWithUser } from "../types/utils.interface";
+import { CustomError, UnAuthorizationError } from "../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../constant/httpStatus/httpStatusCodes.constants.js";
+import { verifyToken } from "../services/jwt/jwt.js";
+import { getOneUser } from "../services/database/user/user.service.js";
+import { IRequestWithUser } from "../types/utils.interface.js";
 
 export const userAuthMiddleware = async (req: IRequestWithUser, _res: Response, next: NextFunction) => {
   try {

@@ -1,8 +1,8 @@
 import { Prisma, Monitor } from "@prisma/client";
 
-import { prisma } from "../../../config/Prisma/prisma.client";
-import { CustomError } from "../../../helper/errors/custom-errors";
-import { httpStatusCodes } from "../../../constant/httpStatus/httpStatusCodes.constants";
+import { prisma } from "../../../config/Prisma/prisma.client.js";
+import { CustomError } from "../../../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../../../constant/httpStatus/httpStatusCodes.constants.js";
 
 export const createMonitor = async (data: Omit<Prisma.MonitorCreateInput, 'user'> & { user_id: string }): Promise<Monitor | null> => {
   try {
@@ -56,5 +56,20 @@ export const updateOneMonitor = async (query: Prisma.MonitorWhereUniqueInput, da
       error?.message || 'Something went wrong while updating monitor data.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
+  }
+}
+
+export const getMonitors = async (query: Prisma.MonitorWhereInput, projection?: Prisma.MonitorSelect): Promise<Monitor[] | null> => {
+  try {
+    return await prisma.monitor.findMany({
+      where: query,
+      select: projection
+    });
+  } catch (error: any) {
+    console.log("🚀 ~ getMonitors ~ error:", error?.message || error);
+    throw new CustomError(
+      error?.message || 'Something went wrong while fetching monitors.',
+      error?.statusCode || httpStatusCodes['Internal Server Error']
+    )
   }
 }

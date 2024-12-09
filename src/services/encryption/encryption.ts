@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { ENV_VALUES } from '../../config/env/env.config';
+import { ENV_VALUES } from '../../config/env/env.config.js';
 
 const DEFAULT_ENCRYPTION_KEY = ENV_VALUES.ENCRYPTION_KEY;
 const DEFAULT_ENCRYPTION_EXPIRATION_TIME = ENV_VALUES.ENCRYPTION_EXPIRATION_TIME

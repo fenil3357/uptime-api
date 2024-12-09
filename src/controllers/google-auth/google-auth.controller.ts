@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { google } from "googleapis";
 
-import { BadRequestError, CustomError, UnAuthorizationError } from "../../helper/errors/custom-errors";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
-import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config";
-import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants";
-import { handleResponse } from "../../helper/response/handleResponse";
-import { createUser, getOneUser, updateOneUser } from "../../services/database/user/user.service";
-import { generateToken } from "../../services/jwt/jwt";
-import { decryption, encryption } from "../../services/encryption/encryption";
-import { ENV_VALUES } from "../../config/env/env.config";
+import { BadRequestError, CustomError, UnAuthorizationError } from "../../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
+import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config.js";
+import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants.js";
+import { handleResponse } from "../../helper/response/handleResponse.js";
+import { createUser, getOneUser, updateOneUser } from "../../services/database/user/user.service.js";
+import { generateToken } from "../../services/jwt/jwt.js";
+import { decryption, encryption } from "../../services/encryption/encryption.js";
+import { ENV_VALUES } from "../../config/env/env.config.js";
 
 export const googleAuthController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
