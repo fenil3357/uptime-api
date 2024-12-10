@@ -23,6 +23,11 @@ enum MonitorType {
   API     @map("api")
 }
 
+enum ResponseStatus {
+  SUCCESS @map("success")
+  ERROR   @map("error")
+}
+
 enum RequestMethodType {
   GET    @map("get")
   POST   @map("post")
@@ -55,7 +60,25 @@ model Monitor {
   method    RequestMethodType @default(GET)
   payload   Json?
   headers   Json?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   // Foreign key relationship to User model
-  user User @relation(fields: [user_id], references: [id])
+  user   User     @relation(fields: [user_id], references: [id])
+  Report Report[]
+}
+
+model Report {
+  id         String         @id @default(uuid())
+  monitor_id String
+  status     ResponseStatus
+  statusCode Int?
+  message    String?
+  data       Json?
+  time_taken Int?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  // Foreign key relationship to monitor model
+  monitor Monitor @relation(fields: [monitor_id], references: [id])
 }

@@ -4,10 +4,12 @@
   "description": "Api server for uptime",
   "exports": "./index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./build/src/server.js",
+    "build": "tsc",
     "dev": "tsc --noEmit --watch & tsx watch ./src/server.ts",
-    "build": "tsc"
+    "start": "node ./build/src/server.js",
+    "migrate:dev": "prisma migrate dev --name",
+    "migrate:undo": "prisma migrate dev --rollback",
+    "migrate:rollback": "prisma migrate resolve --rolled-back"
   },
   "keywords": [
     "express",
