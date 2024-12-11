@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { google } from "googleapis";
 
-import { BadRequestError, CustomError, UnAuthorizationError } from "../../helper/errors/custom-errors";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
-import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config";
-import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants";
-import { handleResponse } from "../../helper/response/handleResponse";
-import { createUser, getOneUser, updateOneUser } from "../../services/database/user/user.service";
-import { generateToken } from "../../services/jwt/jwt";
-import { decryption, encryption } from "../../services/encryption/encryption";
-import { ENV_VALUES } from "../../config/env/env.config";
+import { BadRequestError, CustomError, UnAuthorizationError } from "../../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
+import { generateOauth2Client, oauth2ClientGoogleAuth } from "../../config/google/oauth2Client.config.js";
+import { GOOGLE_OAUTH_LOGIN_SCOPES } from "../../constant/google-auth/google-auth.constants.js";
+import { handleResponse } from "../../helper/response/handleResponse.js";
+import { createUser, getOneUser, updateOneUser } from "../../services/database/user/user.service.js";
+import { generateToken } from "../../services/jwt/jwt.js";
+import { decryption, encryption } from "../../services/encryption/encryption.js";
+import { ENV_VALUES } from "../../config/env/env.config.js";
 
 export const googleAuthController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -34,7 +34,7 @@ export const googleAuthController = async (req: Request, res: Response, next: Ne
       httpStatusCodes['OK']
     );
   } catch (error: any) {
-    console.log("🚀 ~ googleAuthController= ~ error:", error)
+    console.log("🚀 ~ googleAuthController= ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
         error?.message || 'Something went wrong in google auth.',
@@ -114,7 +114,7 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
 
     return res.redirect(`${ENV_VALUES.CLIENT_ENDPOINT}/api/v1/auth/google/encryption?encrypted=${encrypted}`);
   } catch (error: any) {
-    console.log("🚀 ~ googleAuthCallbackController ~ error:", error)
+    console.log("🚀 ~ googleAuthCallbackController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
         error?.message || 'Something went wrong in google callback.',
@@ -140,7 +140,7 @@ export const googleAuthEncryptionController = async (req: Request, res: Response
       httpStatusCodes['OK']
     );
   } catch (error: any) {
-    console.log("🚀 ~ googleAuthEncryptionController ~ error:", error)
+    console.log("🚀 ~ googleAuthEncryptionController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
         error?.message || 'Something went wrong in google auth encryption controller',

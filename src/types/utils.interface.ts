@@ -1,6 +1,10 @@
 import { Request } from 'express';
+export interface IRequestWithUser extends Request {
+  user?: RequestUserPayload
+}
 
-export default interface IRequestWithUser extends Request{
-  user?: any,
-  rawBody?: any; 
+export interface RequestUserPayload {
+  id: string,
+  email: string,
+  monitors: number
 }

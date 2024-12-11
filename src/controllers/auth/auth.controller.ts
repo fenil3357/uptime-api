@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthProvider } from "@prisma/client";
 
-import { ConflictError, CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
-import { handleResponse } from "../../helper/response/handleResponse";
+import { ConflictError, CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
+import { handleResponse } from "../../helper/response/handleResponse.js";
 
-import { createUser, deleteOneUser, getOneUser } from "../../services/database/user/user.service";
-import { generateHtmlTemplateForEmailVerification } from "../../services/email/email.templates";
-import { sendEmailService } from "../../services/email/email.service";
+import { createUser, deleteOneUser, getOneUser } from "../../services/database/user/user.service.js";
+import { generateHtmlTemplateForEmailVerification } from "../../services/email/email.templates.js";
+import { sendEmailService } from "../../services/email/email.service.js";
 
 export const createUserController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
