@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { ENV_VALUES } from '../../config/env/env.config';
+import { ENV_VALUES } from '../../config/env/env.config.js';
 
 const DEFAULT_ENCRYPTION_KEY = ENV_VALUES.ENCRYPTION_KEY;
 const DEFAULT_ENCRYPTION_EXPIRATION_TIME = ENV_VALUES.ENCRYPTION_EXPIRATION_TIME
@@ -15,7 +15,7 @@ export const encryption = (data: Record<string, any>, ttl: number = DEFAULT_ENCR
     encrypted += cipher.final('hex');
     return `${iv.toString('hex')}:${encrypted}`;
   } catch (error: any) {
-    console.log("🚀 ~ encryption ~ error:", error)
+    console.log("🚀 ~ encryption ~ error:", error?.message || error)
     throw new Error(error?.message || 'Some error occurred while encrypting the data')
   }
 }
@@ -38,7 +38,7 @@ export const decryption = (encrypted: string): Record<string, any> => {
     }
     return parsedData;
   } catch (error: any) {
-    console.log("🚀 ~ decryption ~ error:", error)
+    console.log("🚀 ~ decryption ~ error:", error?.message || error)
     throw new Error(error?.message || 'Some error occurred while decrypting the data')
   }
 }

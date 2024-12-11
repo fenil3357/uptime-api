@@ -1,5 +1,5 @@
 import { body, ValidationChain } from 'express-validator'
-import { AUTH_VALIDATOR_ENDPOINTS_TYPES, AUTH_ENDPOINTS_CONSTANTS } from '../../constant/auth/auth.constants';
+import { AUTH_VALIDATOR_ENDPOINTS_TYPES, AUTH_ENDPOINTS_CONSTANTS } from '../../constant/auth/auth.constants.js';
 
 export const authValidator = (method: AUTH_VALIDATOR_ENDPOINTS_TYPES): ValidationChain[] => {
   let errors: ValidationChain[] = [];
