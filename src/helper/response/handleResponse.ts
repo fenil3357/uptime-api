@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 
 export const handleResponse = (res: Response, dataObject: { message: string, count?: number, data?: any }, statusCode = httpStatusCodes['OK']) => {
   const { message, count, data } = dataObject;

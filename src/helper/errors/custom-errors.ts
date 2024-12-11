@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants";
+import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 export class CustomError extends Error {
   statusCode: number;
   constructor(message: string, statusCode: number) {
