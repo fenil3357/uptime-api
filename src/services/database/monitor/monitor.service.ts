@@ -3,8 +3,9 @@ import { Prisma, Monitor } from "@prisma/client";
 import { prisma } from "../../../config/Prisma/prisma.client.js";
 import { CustomError } from "../../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../../constant/httpStatus/httpStatusCodes.constants.js";
+import { createMonitorType } from "../../../types/monitor.types.js";
 
-export const createMonitor = async (data: Omit<Prisma.MonitorCreateInput, 'user'> & { user_id: string }): Promise<Monitor | null> => {
+export const createMonitor = async (data: createMonitorType): Promise<Monitor | null> => {
   try {
     return await prisma.monitor.create({ data });
   } catch (error: any) {
@@ -19,7 +20,7 @@ export const getOneMonitor = async (query: Prisma.MonitorWhereInput, projection?
   try {
     return await prisma.monitor.findFirst({
       where: query,
-      select: projection || undefined
+      select: projection
     })
   } catch (error: any) {
     console.log("🚀 ~ getOneMonitor ~ error:", error?.message || error);
@@ -32,9 +33,7 @@ export const getOneMonitor = async (query: Prisma.MonitorWhereInput, projection?
 
 export const deleteOneMonitor = async (query: Prisma.MonitorWhereUniqueInput): Promise<Monitor | null> => {
   try {
-    return await prisma.monitor.delete({
-      where: query
-    });
+    return await prisma.monitor.delete({ where: query });
   } catch (error: any) {
     console.log("🚀 ~ deleteOneMonitor ~ error:", error?.message || error);
     throw new CustomError(
