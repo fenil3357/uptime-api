@@ -34,10 +34,10 @@ export const googleAuthController = async (req: Request, res: Response, next: Ne
       httpStatusCodes['OK']
     );
   } catch (error: any) {
-    console.log("🚀 ~ googleAuthController= ~ error:", error?.message || error, error?.statusCode)
+    console.log("🚀 ~ googleAuthController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong in google auth.',
+        error?.message || 'Something went wrong, please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -110,9 +110,9 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
         access_token
       },
       user: user
-    }, 10 * 60 * 1000) // 10 minutes into ms
+    }, 5 * 60 * 1000) // 5 minutes
 
-    return res.redirect(`${ENV_VALUES.CLIENT_ENDPOINT}/api/v1/auth/google/encryption?encrypted=${encrypted}`);
+    return res.redirect(`${ENV_VALUES.CLIENT_ENDPOINT}/auth/google?encrypted=${encrypted}`);
   } catch (error: any) {
     console.log("🚀 ~ googleAuthCallbackController ~ error:", error?.message || error, error?.statusCode)
     return next(
@@ -131,6 +131,7 @@ export const googleAuthEncryptionController = async (req: Request, res: Response
     if (!encrypted) throw new BadRequestError('Encrypted text not provided');
 
     const data = decryption(encrypted as string);
+
     return handleResponse(
       res,
       {
