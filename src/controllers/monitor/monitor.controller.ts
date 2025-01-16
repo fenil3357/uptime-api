@@ -2,7 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import { CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 import { IRequestWithUser } from "../../types/utils.interface.js";
-import { createMonitor } from "../../services/database/monitor/monitor.service.js";
+import { createMonitor, getMonitors } from "../../services/database/monitor/monitor.service.js";
 import { handleResponse } from "../../helper/response/handleResponse.js";
 import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
 
@@ -48,6 +48,37 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
     );
   } catch (error: any) {
     console.log("🚀 ~ createMonitorController ~ error:", error?.message || error, error?.statusCode)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong while creating a new monitor.',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const getUserMonitorsController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const user = req?.user;
+
+    const monitors = await getMonitors({
+      user_id: user?.id,
+    }, {
+      id: true,
+      name: true,
+      type: true,
+      is_active: true
+    });
+
+    return handleResponse(
+      res,
+      {
+        message: `User's monitors fetched successfully.`,
+        data: monitors
+      }
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ getUserMonitorsController ~ error:", error?.message || error);
     return next(
       new CustomError(
         error?.message || 'Something went wrong while creating a new monitor.',

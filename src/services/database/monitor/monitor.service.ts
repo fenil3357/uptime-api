@@ -58,12 +58,35 @@ export const updateOneMonitor = async (query: Prisma.MonitorWhereUniqueInput, da
   }
 }
 
-export const getMonitors = async (query: Prisma.MonitorWhereInput, projection?: Prisma.MonitorSelect): Promise<Monitor[] | null> => {
+export const getMonitors = async (query: Prisma.MonitorWhereInput, projection?: Prisma.MonitorSelect, page: number = 1, limit: number = 5): Promise<Monitor[] | null> => {
   try {
-    return await prisma.monitor.findMany({
+    const skip = (page - 1) * limit;
+
+    const monitors = await prisma.monitor.findMany({
       where: query,
-      select: projection
+      select: {
+        ...projection,
+        Report: {
+          skip,
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: limit,
+          select: {
+            status: true,
+            time_taken: true,
+            createdAt: true,
+            message: true
+          }
+        }
+      }
     });
+
+    for (const monitor of monitors) {
+      monitor.Report.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    }
+
+    return monitors;
   } catch (error: any) {
     console.log("🚀 ~ getMonitors ~ error:", error?.message || error);
     throw new CustomError(
