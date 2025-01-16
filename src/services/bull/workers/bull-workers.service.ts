@@ -61,7 +61,8 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
               status: 'ERROR',
               data: isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {},
               message: isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message,
-              statusCode: error.response?.statusCode
+              statusCode: error.response?.statusCode,
+              time_taken: error?.response?.timings?.phases?.total ? (error?.response?.timings?.phases?.total as number) : null
             }
           }
         }
