@@ -1,7 +1,7 @@
 import { Prisma, User } from "@prisma/client";
 
 import { prisma } from "../../../config/Prisma/prisma.client.js";
-import { hasPassword } from "../../../utils/encryption.js";
+import { hasPassword } from "../../../utils/bcrypt.js";
 import { CustomError } from "../../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../../constant/httpStatus/httpStatusCodes.constants.js";
 

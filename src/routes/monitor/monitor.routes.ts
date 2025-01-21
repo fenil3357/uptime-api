@@ -26,4 +26,6 @@ monitorRouter.get('/id/', userAuthMiddleware,
   getOneMonitorController
 );
 
+monitorRouter.get('/', userAuthMiddleware, getUserMonitorsController);
+
 export default monitorRouter;
