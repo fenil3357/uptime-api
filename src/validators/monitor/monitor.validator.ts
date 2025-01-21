@@ -1,4 +1,4 @@
-import { body, ValidationChain } from "express-validator";
+import { body, ValidationChain, query } from "express-validator";
 import { MonitorType, RequestMethodType } from "@prisma/client";
 
 import { MONITOR_ENDPOINTS_CONSTANTS, MONITOR_VALIDATOR_ENDPOINTS_TYPES } from "../../constant/monitor/monitor.constants.js";
@@ -27,6 +27,23 @@ export const monitorValidator = (method: MONITOR_VALIDATOR_ENDPOINTS_TYPES): Val
         body('headers')
           .optional()
           .isJSON().withMessage('headers must be in json type')
+      ];
+      break;
+    }
+    case MONITOR_ENDPOINTS_CONSTANTS.GET_ONE_MONITOR: {
+      errors = [
+        query('id')
+          .notEmpty().withMessage('id must be provided')
+          .isString().withMessage('id must be a string'),
+        query('reportStartDate')
+          .optional()
+          .matches(/^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/).withMessage('start date must be a valid date'),
+        query('reportEndDate')
+          .optional()
+          .matches(/^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/).withMessage('end date must be a valid date'),
+        query('reportOnly')
+          .optional()
+          .isIn(['1']).withMessage("reportOnly can only have value '1'")
       ];
       break;
     }
