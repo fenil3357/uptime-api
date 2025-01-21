@@ -1,15 +1,11 @@
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response } from "express";
+
 import { CustomError, NotFoundError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 import { IRequestWithUser } from "../../types/utils.interface.js";
-<<<<<<< Updated upstream
-import { createMonitor } from "../../services/database/monitor/monitor.service.js";
-=======
 import { createMonitor, getMonitors, getOneMonitor } from "../../services/database/monitor/monitor.service.js";
->>>>>>> Stashed changes
 import { handleResponse } from "../../helper/response/handleResponse.js";
 import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
-
 
 export const createMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -59,8 +55,6 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
       )
     )
   }
-<<<<<<< Updated upstream
-=======
 }
 
 export const getUserMonitorsController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
@@ -137,5 +131,4 @@ export const getOneMonitorController = async (req: IRequestWithUser, res: Respon
       )
     )
   }
->>>>>>> Stashed changes
 }

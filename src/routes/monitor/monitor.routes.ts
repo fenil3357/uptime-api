@@ -1,11 +1,7 @@
 import { Router } from "express";
 
 import { userAuthMiddleware } from "../../middleware/auth.middleware.js";
-<<<<<<< Updated upstream
-import { createMonitorController } from "../../controllers/monitor/monitor.controller.js";
-=======
-import { createMonitorController, getOneMonitorController, getUserMonitorsController } from "../../controllers/monitor/monitor.controller.js";
->>>>>>> Stashed changes
+import { createMonitorController, getUserMonitorsController, getOneMonitorController } from "../../controllers/monitor/monitor.controller.js";
 import { monitorValidator } from "../../validators/monitor/monitor.validator.js";
 import { MONITOR_ENDPOINTS_CONSTANTS } from "../../constant/monitor/monitor.constants.js";
 import { handleValidationErrors } from "../../validators/handleValidationErrors.js";
@@ -20,8 +16,6 @@ monitorRouter.post('/', userAuthMiddleware,
   createMonitorController
 );
 
-<<<<<<< Updated upstream
-=======
 monitorRouter.get('/', userAuthMiddleware, getUserMonitorsController);
 
 monitorRouter.get('/id/', userAuthMiddleware,
@@ -32,5 +26,4 @@ monitorRouter.get('/id/', userAuthMiddleware,
   getOneMonitorController
 );
 
->>>>>>> Stashed changes
 export default monitorRouter;
