@@ -7,6 +7,7 @@
     "build": "tsc",
     "dev": "tsc --noEmit --watch & tsx watch ./src/server.ts",
     "start": "node ./build/src/server.js",
+    "reset": "prisma migrate reset -y",
     "migrate:dev": "prisma migrate dev --name",
     "migrate:undo": "prisma migrate dev --rollback",
     "migrate:rollback": "prisma migrate resolve --rolled-back"

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { userAuthMiddleware } from "../../middleware/auth.middleware.js";
-import { createMonitorController, getUserMonitorsController, getOneMonitorController } from "../../controllers/monitor/monitor.controller.js";
+import { createMonitorController, getUserMonitorsController, getOneMonitorController, updateMonitorController, deleteMonitorController } from "../../controllers/monitor/monitor.controller.js";
 import { monitorValidator } from "../../validators/monitor/monitor.validator.js";
 import { MONITOR_ENDPOINTS_CONSTANTS } from "../../constant/monitor/monitor.constants.js";
 import { handleValidationErrors } from "../../validators/handleValidationErrors.js";
@@ -27,5 +27,21 @@ monitorRouter.get('/id/', userAuthMiddleware,
 );
 
 monitorRouter.get('/', userAuthMiddleware, getUserMonitorsController);
+
+monitorRouter.patch('/:id', userAuthMiddleware,
+  [
+    monitorValidator(MONITOR_ENDPOINTS_CONSTANTS.UPDATE_MONITOR) as any,
+    handleValidationErrors
+  ],
+  updateMonitorController
+);
+
+monitorRouter.delete('/:id', userAuthMiddleware,
+  [
+    monitorValidator(MONITOR_ENDPOINTS_CONSTANTS.DELETE_MONITOR) as any,
+    handleValidationErrors
+  ],
+  deleteMonitorController
+)
 
 export default monitorRouter;

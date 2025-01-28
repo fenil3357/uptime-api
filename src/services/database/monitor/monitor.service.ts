@@ -45,7 +45,9 @@ export const deleteOneMonitor = async (query: Prisma.MonitorWhereUniqueInput): P
   try {
     return await prisma.monitor.delete({ where: query });
   } catch (error: any) {
-    console.log("🚀 ~ deleteOneMonitor ~ error:", error?.message || error);
+    // Custom handling for case : monitor does not exists
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null;
+    console.log("🚀 ~ deleteOneMonitor ~ error:", error);
     throw new CustomError(
       error?.message || 'Something went wrong while fetching deleting a monitor.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
