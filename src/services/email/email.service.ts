@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { ENV_VALUES } from '../../config/env/env.config.js'
 
 export type send_email_input = {
   from: string,
@@ -15,11 +16,11 @@ export type send_email_input = {
 export const sendEmailService = async (options: send_email_input) => {
   try {
     const transporter = nodemailer.createTransport({
-      host: 'citynect.in',
-      port: 465,
+      host: ENV_VALUES.SMTP_HOST,
+      port: ENV_VALUES.SMTP_PORT,
       auth: {
-        user: 'info@citynect.in',
-        pass: ']mO=1w92gTJm',
+        user: ENV_VALUES.SMTP_EMAIL,
+        pass: ENV_VALUES.SMTP_PASS,
       },
     });
 
