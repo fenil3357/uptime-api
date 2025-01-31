@@ -31,8 +31,8 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
       type: type,
       endpoint,
       method: method || undefined,
-      payload: payload || undefined,
-      headers: headers || undefined
+      payload: payload ? JSON.parse(payload) : undefined,
+      headers: headers ? JSON.parse(headers) : undefined
     });
 
     // Update usage
