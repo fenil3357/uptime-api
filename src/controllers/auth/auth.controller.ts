@@ -51,13 +51,13 @@ export const createUserController = async (req: Request, res: Response, next: Ne
     // Send verification email
     const html_template_for_verification_email = generateHtmlTemplateForEmailVerification({
       name,
-      link: 'www.google.com'
+      link: 'uptime.io'
     });
 
     await sendEmailService({
-      from: 'info@citynect.in',
-      to: 'najad10517@regishub.com',
-      html: '<p> Test </P>',
+      from: 'system@uptime.io',
+      to: newUser?.email as string,
+      html: html_template_for_verification_email,
       subject: 'Verify Your Email'
     })
 

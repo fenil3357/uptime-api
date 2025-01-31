@@ -16,11 +16,21 @@ export const createMonitor = async (data: createMonitorType): Promise<Monitor | 
   }
 }
 
-export const getOneMonitor = async (query: Prisma.MonitorWhereInput, projection?: Prisma.MonitorSelect): Promise<Monitor | null> => {
+export const getOneMonitor = async (query: Prisma.MonitorWhereInput, projection?: Prisma.MonitorSelect, reportStartDate?: Date, reportEndDate?: Date): Promise<Monitor | null> => {
   try {
     return await prisma.monitor.findFirst({
       where: query,
-      select: projection
+      select: {
+        ...projection,
+        Report: {
+          where: {
+            createdAt: {
+              gte: reportStartDate,
+              lte: reportEndDate
+            }
+          }
+        }
+      }
     })
   } catch (error: any) {
     console.log("🚀 ~ getOneMonitor ~ error:", error?.message || error);
@@ -35,7 +45,9 @@ export const deleteOneMonitor = async (query: Prisma.MonitorWhereUniqueInput): P
   try {
     return await prisma.monitor.delete({ where: query });
   } catch (error: any) {
-    console.log("🚀 ~ deleteOneMonitor ~ error:", error?.message || error);
+    // Custom handling for case : monitor does not exists
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null;
+    console.log("🚀 ~ deleteOneMonitor ~ error:", error);
     throw new CustomError(
       error?.message || 'Something went wrong while fetching deleting a monitor.',
       error?.statusCode || httpStatusCodes['Internal Server Error']

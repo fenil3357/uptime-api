@@ -1,11 +1,11 @@
-import { NextFunction, Response, Request } from "express";
-import { CustomError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
+import { NextFunction, Response } from "express";
+
+import { CustomError, NotFoundError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 import { IRequestWithUser } from "../../types/utils.interface.js";
-import { createMonitor, getMonitors } from "../../services/database/monitor/monitor.service.js";
+import { createMonitor, deleteOneMonitor, getMonitors, getOneMonitor, updateOneMonitor } from "../../services/database/monitor/monitor.service.js";
 import { handleResponse } from "../../helper/response/handleResponse.js";
 import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
-
 
 export const createMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -31,8 +31,8 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
       type: type,
       endpoint,
       method: method || undefined,
-      payload: payload || undefined,
-      headers: headers || undefined
+      payload: payload ? JSON.parse(payload) : undefined,
+      headers: headers ? JSON.parse(headers) : undefined
     });
 
     // Update usage
@@ -82,6 +82,118 @@ export const getUserMonitorsController = async (req: IRequestWithUser, res: Resp
     return next(
       new CustomError(
         error?.message || 'Something went wrong while creating a new monitor.',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const getOneMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const user = req?.user;
+    const { id, reportStartDate, reportEndDate, reportOnly } = req?.query;
+
+    const monitor = await getOneMonitor({
+      user_id: user?.id,
+      id: id as string
+    }, (reportOnly == '1') ? { Report: true } : {
+      id: true,
+      type: true,
+      name: true,
+      endpoint: true,
+      method: true,
+      headers: true,
+      payload: true,
+      is_active: true,
+      Report: true,
+      createdAt: true,
+      updatedAt: true
+    },
+      reportStartDate ? new Date(reportStartDate as string) : undefined,
+      reportEndDate ? new Date(reportEndDate as string) : undefined
+    );
+
+    if (!monitor) throw new NotFoundError('Monitor with given id does not exists.')
+
+    return handleResponse(
+      res,
+      {
+        message: 'Monitor data fetched successfully.',
+        data: monitor
+      }
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ getOneMonitorController ~ error:", error?.message || error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong while creating a new monitor.',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const updateMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const user = req?.user;
+    const { name, is_active, payload, headers, method, endpoint, type } = req?.body;
+    const { id } = req?.params;
+
+    const updatedMonitor = await updateOneMonitor({
+      id,
+      user_id: user?.id
+    }, {
+      name,
+      is_active,
+      payload,
+      headers,
+      method,
+      endpoint,
+      type
+    });
+
+    return handleResponse(
+      res,
+      {
+        message: 'Monitor details updated successfully',
+        data: updatedMonitor
+      }
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ updateMonitorController ~ error:", error?.message || error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong while updating monitor data',
+        error?.statusCode || httpStatusCodes['Internal Server Error']
+      )
+    )
+  }
+}
+
+export const deleteMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const user = req?.user;
+    const { id } = req?.params;
+
+    const monitor = await deleteOneMonitor({
+      id,
+      user_id: user?.id
+    });
+
+    if (!monitor) throw new NotFoundError('The monitor with given id does not exists')
+
+    return handleResponse(
+      res,
+      {
+        message: 'Monitor has been deleted successfully!',
+        data: monitor
+      }
+    );
+  } catch (error: any) {
+    console.log("🚀 ~ deleteMonitorController ~ error:", error?.message || error)
+    return next(
+      new CustomError(
+        error?.message || 'Something went wrong while deleting monitor',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
