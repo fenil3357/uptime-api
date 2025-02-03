@@ -17,6 +17,7 @@ export const ENV_VALUES = {
   PORT: parseInt(process.env.PORT as string),
   CLIENT_ENDPOINT: process.env.CLIENT_ENDPOINT,
   SERVER_ENDPOINT: process.env.SERVER_ENDPOINT,
+  SERVER_HEALTH_ENDPOINT: process.env.SERVER_HEALTH_ENDPOINT,
 
   // Environment
   GLOBAL_ENV: process.env.GLOBAL_ENV,
@@ -47,5 +48,7 @@ export const ENV_VALUES = {
 
   // Redis
   REDIS_HOST: process.env.REDIS_HOST,
-  REDIS_PORT: parseInt(process.env.REDIS_PORT as string)
+  REDIS_PORT: parseInt(process.env.REDIS_PORT as string),
+  REDIS_USERNAME: process.env.REDIS_USERNAME || undefined,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined
 }
