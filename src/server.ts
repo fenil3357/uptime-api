@@ -26,8 +26,12 @@ app.use(express.urlencoded({
   extended: true
 }))
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.send('Welcome to the uptime server!!!');
+})
+
+app.get('/api/v1/ping', (_req: Request, res: Response) => {
+  res.json({ status: 'Healthy' })
 })
 
 app.use('/api/v1', indexRouter);
@@ -44,6 +48,7 @@ app.listen(PORT, async () => {
   try {
     await prisma.$connect();
     await scheduleCronJob(CRON_JOBS.REGULAR_MONITOR_CHECK);
+    await scheduleCronJob(CRON_JOBS.REGULAR_SERVER_HEALTH_CHECK);
     console.log(`Server is listening on port ${PORT} in ${ENV_VALUES.GLOBAL_ENV} environment!!!`);
   } catch (error) {
     console.log(`Some error occurred while starting the server`, error);
