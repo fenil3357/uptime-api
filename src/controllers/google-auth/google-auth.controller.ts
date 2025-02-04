@@ -47,8 +47,8 @@ export const googleAuthController = async (req: Request, res: Response, next: Ne
 export const googleAuthCallbackController = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const code = req?.query?.code;
-    const state: any = req?.query?.state;
-    const stateData = JSON.parse(state);
+    // const state: any = req?.query?.state;
+    // const stateData = JSON.parse(state);
 
     if (!code) {
       throw new UnAuthorizationError('Code not provided');
@@ -95,7 +95,8 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
       id: true,
       email: true,
       name: true,
-      monitors: true
+      monitors: true,
+      avatar: true
     })
 
     // Generate access token
