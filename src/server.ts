@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client';
 import helmet from 'helmet';
 import cors from 'cors'
 import morgan from 'morgan'
@@ -9,13 +8,13 @@ import { CustomError, handleError, NotFoundError } from './helper/errors/custom-
 import { ENV_VALUES } from './config/env/env.config.js';
 import { scheduleCronJob } from './services/cron/cron.service.js';
 import { CRON_JOBS } from './constant/cron/cron.constants.js';
+import { prisma } from './config/Prisma/prisma.client.js'
 
 // Import job workers
 import './services/bull/workers/bull-workers.service.js'
 import connectRabbitMq from './config/rabbitmq/rabbitmq.config.js';
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = ENV_VALUES.PORT || 8002;
 
 app.use(cors());
