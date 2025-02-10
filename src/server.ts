@@ -50,6 +50,7 @@ app.listen(PORT, async () => {
     await prisma.$connect();
     await scheduleCronJob(CRON_JOBS.REGULAR_MONITOR_CHECK);
     await scheduleCronJob(CRON_JOBS.REGULAR_SERVER_HEALTH_CHECK);
+    await scheduleCronJob(CRON_JOBS.RECENT_ERROR_REPORTS_MONITOR_REMOVAL);
     await connectRabbitMq();
     console.log(`Server is listening on port ${PORT} in ${ENV_VALUES.GLOBAL_ENV} environment!!!`);
   } catch (error) {
