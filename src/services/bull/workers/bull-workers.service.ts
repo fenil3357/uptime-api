@@ -9,6 +9,8 @@ import { createReportType } from "../../../types/report.types.js";
 import { createReportsBulk } from "../../database/report/report.service.js";
 import { isValidJson } from "../../../utils/isJson.js";
 import { redisConfig } from "../../../config/redis/redis.config.js";
+import { ENV_VALUES } from "../../../config/env/env.config.js";
+import { sendMessageToNotificationQueue } from "../../rabbitmq/rabbitmq.service.js";
 
 export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
   BULL_QUEUES.REGULAR_MONITOR_CHECK_QUEUE,
@@ -33,9 +35,9 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
       });
 
       const results: createReportType[] = await pMap(
-        monitors as Monitor[],
-        async (monitor: Monitor): Promise<createReportType> => {
-          const { id, endpoint, method, headers, payload } = monitor;
+        monitors as (Monitor & { user: { name: string, email: string } })[],
+        async (monitor: Monitor & { user: { name: string, email: string } }): Promise<createReportType> => {
+          const { id, endpoint, method, headers, payload, name, type, user } = monitor;
 
           try {
             const response = await got(endpoint, {
@@ -56,6 +58,23 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
               time_taken: response?.timings?.phases?.total as number
             }
           } catch (error: any) {
+            await sendMessageToNotificationQueue({
+              type: 'ERROR',
+              content: {
+                endpoint,
+                monitorName: name as string,
+                monitorPageUrl: `${ENV_VALUES.CLIENT_ENDPOINT}/monitor?id=${id}`,
+                type,
+                userName: user.name,
+                userEmail: user.email,
+                errorReport: {
+                  time: new Date().toLocaleString(),
+                  errorMessage: isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message,
+                  errorJson: isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {}
+                }
+              }
+            })
+
             return {
               monitor_id: id,
               status: 'ERROR',
