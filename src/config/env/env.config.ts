@@ -1,16 +1,5 @@
 import * as dotenv from 'dotenv'
-import path from 'path';
-
-dotenv.config();
-const globalEnv = process.env.GLOBAL_ENV;
-const envFile = globalEnv === 'production'
-  ? '.env'
-  : `.env.${globalEnv}.local`;
-
-dotenv.config({
-  path: path.resolve(process.cwd(), envFile),
-  override: true
-})
+dotenv.config()
 
 export const ENV_VALUES = {
   // Port and Endpoints
@@ -50,5 +39,9 @@ export const ENV_VALUES = {
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: parseInt(process.env.REDIS_PORT as string),
   REDIS_USERNAME: process.env.REDIS_USERNAME || undefined,
-  REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || undefined,
+  
+  // RabbitMQ
+  RABBITMQ_CONNECTION_URL: process.env.RABBITMQ_CONNECTION_URL,
+  RABBITMQ_NOTIFICATION_QUEUE: process.env.RABBITMQ_NOTIFICATION_QUEUE
 }

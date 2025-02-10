@@ -12,6 +12,7 @@ import { CRON_JOBS } from './constant/cron/cron.constants.js';
 
 // Import job workers
 import './services/bull/workers/bull-workers.service.js'
+import connectRabbitMq from './config/rabbitmq/rabbitmq.config.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -49,6 +50,7 @@ app.listen(PORT, async () => {
     await prisma.$connect();
     await scheduleCronJob(CRON_JOBS.REGULAR_MONITOR_CHECK);
     await scheduleCronJob(CRON_JOBS.REGULAR_SERVER_HEALTH_CHECK);
+    await connectRabbitMq();
     console.log(`Server is listening on port ${PORT} in ${ENV_VALUES.GLOBAL_ENV} environment!!!`);
   } catch (error) {
     console.log(`Some error occurred while starting the server`, error);
