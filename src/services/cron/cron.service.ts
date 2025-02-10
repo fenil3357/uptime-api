@@ -8,7 +8,7 @@ export const scheduleCronJob = async (cronJobType: CRON_JOB_TYPES) => {
   try {
     switch (cronJobType) {
       case CRON_JOBS.REGULAR_MONITOR_CHECK: {
-        cron.schedule('*/15 * * * *', regularMonitorCheckJob)
+        cron.schedule('*/1 * * * *', regularMonitorCheckJob)
         break;
       }
 
