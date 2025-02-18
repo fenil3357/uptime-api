@@ -37,7 +37,7 @@ export const googleAuthController = async (req: Request, res: Response, next: Ne
     console.log("🚀 ~ googleAuthController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong, please try again.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -118,7 +118,7 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
     console.log("🚀 ~ googleAuthCallbackController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong in google callback.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -145,7 +145,7 @@ export const googleAuthEncryptionController = async (req: Request, res: Response
     console.log("🚀 ~ googleAuthEncryptionController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong in google auth encryption controller',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )

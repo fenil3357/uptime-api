@@ -107,3 +107,33 @@ export const getMonitors = async (query: Prisma.MonitorWhereInput, projection?: 
     )
   }
 }
+
+export const pauseRecentFailureMonitors = async () => {
+  try {
+    await prisma.$queryRaw`WITH monitors_to_update AS (
+      SELECT m.id
+      FROM "Monitor" m
+      WHERE m.is_active = true
+      AND (
+          SELECT COUNT(*) = 3
+          FROM (
+              SELECT r.status
+              FROM "Report" r
+              WHERE r.monitor_id = m.id
+              ORDER BY r."createdAt" DESC
+              LIMIT 3
+          ) AS latest_reports
+          WHERE latest_reports.status = 'error'
+          )
+      )
+      UPDATE "Monitor"
+      SET is_active = false
+      WHERE id IN (SELECT id FROM monitors_to_update)`;
+  } catch (error: any) {
+    console.log("🚀 ~ removeRecentFailureMonitors ~ error:", error?.message || error);
+    throw new CustomError(
+      error?.message || 'Something went wrong while removing recent failed monitors.',
+      error?.statusCode || httpStatusCodes['Internal Server Error']
+    )
+  }
+}
