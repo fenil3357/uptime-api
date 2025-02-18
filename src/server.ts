@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import helmet from 'helmet';
 import cors from 'cors'
 import morgan from 'morgan'
+import rateLimit from 'express-rate-limit';
 
 import indexRouter from './routes/index.js';
 import { CustomError, handleError, NotFoundError } from './helper/errors/custom-errors.js';
@@ -25,6 +26,12 @@ app.use(express.urlencoded({
   limit: '50mb',
   extended: true
 }))
+app.use(rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 50,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+}));
 
 app.get('/', (_req: Request, res: Response) => {
   res.send('Welcome to the uptime server!!!');
