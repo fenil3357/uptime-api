@@ -44,7 +44,7 @@ export class ConflictError extends CustomError {
   }
 }
 
-export const handleError = async (err: CustomError, res: Response) => {
+export const handleError = (err: CustomError, res: Response) => {
   const { statusCode, message } = err;
   res.status(statusCode).json({
     status: 'error',

@@ -5,7 +5,7 @@ import morgan from 'morgan'
 import rateLimit from 'express-rate-limit';
 
 import indexRouter from './routes/index.js';
-import { CustomError, handleError, NotFoundError } from './helper/errors/custom-errors.js';
+import { CustomError, handleError, NotFoundError, TooManyRequestsError } from './helper/errors/custom-errors.js';
 import { ENV_VALUES } from './config/env/env.config.js';
 import { scheduleCronJob } from './services/cron/cron.service.js';
 import { CRON_JOBS } from './constant/cron/cron.constants.js';
@@ -14,6 +14,7 @@ import { prisma } from './config/Prisma/prisma.client.js'
 // Import job workers
 import './services/bull/workers/bull-workers.service.js'
 import connectRabbitMq from './config/rabbitmq/rabbitmq.config.js';
+import { IRequestWithUser } from './types/utils.interface.js';
 
 const app = express();
 const PORT = ENV_VALUES.PORT || 8002;
@@ -30,7 +31,14 @@ app.use(rateLimit({
   windowMs: 10 * 60 * 1000,
   limit: 50,
   standardHeaders: 'draft-8',
-  legacyHeaders: false
+  legacyHeaders: false,
+  keyGenerator: (req: IRequestWithUser) => {
+    if (req?.user) return req?.user?.id?.toString();
+    return req?.ip as string;
+  },
+  handler: (_req: Request, res: Response) => {
+    return handleError(new TooManyRequestsError('Too many requests, please try again later.'), res);
+  }
 }));
 
 app.get('/', (_req: Request, res: Response) => {
