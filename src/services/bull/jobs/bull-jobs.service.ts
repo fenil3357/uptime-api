@@ -19,8 +19,8 @@ export const regularMonitorCheckJob = async () => {
 export const serverHealthCheckJob = async () => {
   try {
     await got(ENV_VALUES.SERVER_HEALTH_ENDPOINT as string);
-  } catch (error) {
-    console.log("🚀 ~ serverHealthCheckJob ~ error:", error);
+  } catch (error: any) {
+    console.log("🚀 ~ serverHealthCheckJob ~ error:", error?.message || error);
   }
 }
 
