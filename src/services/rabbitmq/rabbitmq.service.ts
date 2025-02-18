@@ -18,7 +18,8 @@ export const sendMessageToNotificationQueue = async (
           time: string,
           errorMessage: string,
           errorJson?: object
-        }
+        },
+        errorAnalysis?: string
       }
     }
 ): Promise<void> => {
