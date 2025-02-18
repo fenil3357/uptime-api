@@ -3,7 +3,7 @@ import got from "got";
 import { BULL_QUEUES } from "../../../constant/bull/bull.constants.js";
 import { regularMonitorCheckQueue } from "../../../config/bull/bull.config.js";
 import { ENV_VALUES } from "../../../config/env/env.config.js";
-import { prisma } from "../../../config/Prisma/prisma.client.js";
+import { pauseRecentFailureMonitors } from "../../database/monitor/monitor.service.js";
 
 export const regularMonitorCheckJob = async () => {
   try {
@@ -26,26 +26,8 @@ export const serverHealthCheckJob = async () => {
 
 export const recentFailureMonitorsRemovalJob = async () => {
   try {
-    await prisma.$queryRaw`WITH monitors_to_update AS (
-      SELECT m.id
-      FROM "Monitor" m
-      WHERE m.is_active = true
-      AND (
-          SELECT COUNT(*) = 3
-          FROM (
-              SELECT r.status
-              FROM "Report" r
-              WHERE r.monitor_id = m.id
-              ORDER BY r."createdAt" DESC
-              LIMIT 3
-          ) AS latest_reports
-          WHERE latest_reports.status = 'error'
-      )
-  )
-  UPDATE "Monitor"
-  SET is_active = false
-  WHERE id IN (SELECT id FROM monitors_to_update)`;
-  } catch (error) {
-    console.log("🚀 ~ recentFailureMonitorRemovalJob ~ error:", error);
+    await pauseRecentFailureMonitors();
+  } catch (error: any) {
+    console.log("🚀 ~ recentFailureMonitorRemovalJob ~ error:", error?.message || error);
   }
 }

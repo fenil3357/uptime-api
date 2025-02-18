@@ -50,7 +50,7 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ createMonitorController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while creating a new monitor.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -81,7 +81,7 @@ export const getUserMonitorsController = async (req: IRequestWithUser, res: Resp
     console.log("🚀 ~ getUserMonitorsController ~ error:", error?.message || error);
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while creating a new monitor.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -126,7 +126,7 @@ export const getOneMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ getOneMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while creating a new monitor.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -163,7 +163,7 @@ export const updateMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ updateMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while updating monitor data',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -193,7 +193,7 @@ export const deleteMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ deleteMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while deleting monitor',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
