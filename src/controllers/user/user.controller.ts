@@ -31,7 +31,7 @@ export const getOneUserController = async (req: IRequestWithUser, res: Response,
     console.log("🚀 ~ getUserById ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong, please try again.',
+        'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )

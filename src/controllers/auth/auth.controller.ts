@@ -74,7 +74,7 @@ export const createUserController = async (req: Request, res: Response, next: Ne
     console.log("🚀 ~ createUserController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        error?.message || 'Something went wrong while creating a new user',
+        'Something went wrong! Please try again later.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )

@@ -14,7 +14,6 @@ import { prisma } from './config/Prisma/prisma.client.js'
 // Import job workers
 import './services/bull/workers/bull-workers.service.js'
 import connectRabbitMq from './config/rabbitmq/rabbitmq.config.js';
-import { IRequestWithUser } from './types/utils.interface.js';
 
 const app = express();
 const PORT = ENV_VALUES.PORT || 8002;
@@ -32,13 +31,8 @@ app.use(rateLimit({
   limit: 50,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
-  keyGenerator: (req: IRequestWithUser) => {
-    if (req?.user) return req?.user?.id?.toString();
-    return req?.ip as string;
-  },
-  handler: (_req: Request, res: Response) => {
-    return handleError(new TooManyRequestsError('Too many requests, please try again later.'), res);
-  }
+  keyGenerator: (req: Request, _res: Response) => req?.ip as string,
+  handler: (_req: Request, res: Response) => handleError(new TooManyRequestsError('Too many requests, please try again later.'), res)
 }));
 
 app.get('/', (_req: Request, res: Response) => {
