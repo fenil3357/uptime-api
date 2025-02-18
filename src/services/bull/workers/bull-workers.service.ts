@@ -11,6 +11,8 @@ import { isValidJson } from "../../../utils/isJson.js";
 import { redisConfig } from "../../../config/redis/redis.config.js";
 import { ENV_VALUES } from "../../../config/env/env.config.js";
 import { sendMessageToNotificationQueue } from "../../rabbitmq/rabbitmq.service.js";
+import generateErrorAnalysisPrompt from "../../../helper/prompts/errorAnalysis.prompt.js";
+import { generateChatCompletion } from "../../openai/openai.service.js";
 
 export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
   BULL_QUEUES.REGULAR_MONITOR_CHECK_QUEUE,
@@ -58,6 +60,12 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
               time_taken: response?.timings?.phases?.total as number
             }
           } catch (error: any) {
+            const errorMessage = isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message;
+            const errorJson = isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {};
+
+            let errorAnalysis = undefined;
+            if (ENV_VALUES.AI_ENABLED) errorAnalysis = await generateChatCompletion(generateErrorAnalysisPrompt(errorMessage, errorJson));
+
             await sendMessageToNotificationQueue({
               type: 'ERROR',
               content: {
@@ -69,17 +77,18 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
                 userEmail: user.email,
                 errorReport: {
                   time: new Date().toLocaleString(),
-                  errorMessage: isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message,
-                  errorJson: isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {}
-                }
+                  errorMessage: errorMessage,
+                  errorJson: errorJson
+                },
+                errorAnalysis: errorAnalysis || undefined
               }
-            })
+            });
 
             return {
               monitor_id: id,
               status: 'ERROR',
-              data: isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {},
-              message: isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message,
+              data: errorJson,
+              message: errorMessage,
               statusCode: error.response?.statusCode,
               time_taken: error?.response?.timings?.phases?.total ? (error?.response?.timings?.phases?.total as number) : null
             }
