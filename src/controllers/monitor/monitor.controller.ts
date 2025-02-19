@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { Prisma } from "@prisma/client";
+import { Monitor, Prisma } from "@prisma/client";
 
 import { CustomError, NotFoundError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
@@ -7,6 +7,7 @@ import { IRequestWithUser } from "../../types/utils.interface.js";
 import { createMonitor, deleteOneMonitor, getMonitors, getOneMonitor, updateOneMonitor } from "../../services/database/monitor/monitor.service.js";
 import { handleResponse } from "../../helper/response/handleResponse.js";
 import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
+import { executeSingleMonitorHealthCheck } from "../../services/got/got.service.js";
 
 export const createMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -36,6 +37,9 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
 
     // Update usage
     await updateUserMonitorCount({ id: user.id }, -1);
+
+    // Execute first health check on new monitor 
+    await executeSingleMonitorHealthCheck(monitor as Monitor);
 
     return handleResponse(
       res,
