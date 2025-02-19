@@ -17,7 +17,7 @@ export const createUser = async (data: Prisma.UserCreateInput): Promise<User | n
   } catch (error: any) {
     console.log("🚀 ~ createUser ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while creating a new user.',
+      'Something went wrong while creating a new user.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -32,7 +32,7 @@ export const getOneUser = async (query: Prisma.UserWhereInput, projection?: Pris
   } catch (error: any) {
     console.log("🚀 ~ getOneUser ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching one user.',
+      'Something went wrong while fetching one user.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -46,7 +46,7 @@ export const deleteOneUser = async (query: Prisma.UserWhereUniqueInput): Promise
   } catch (error: any) {
     console.log("🚀 ~ deleteOneUser ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while deleting user.',
+      'Something went wrong while deleting user.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -61,7 +61,7 @@ export const updateOneUser = async (query: Prisma.UserWhereUniqueInput, dataToUp
   } catch (error: any) {
     console.log("🚀 ~ updateUser ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while updating user.',
+      'Something went wrong while updating user.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }
@@ -90,7 +90,7 @@ export const updateUserMonitorCount = async (query: Prisma.UserWhereUniqueInput,
   } catch (error: any) {
     console.log("🚀 ~ updateUserMonitorCount ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while updating user monitor count.',
+      'Something went wrong while updating user monitor count.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }

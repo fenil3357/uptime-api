@@ -1,4 +1,5 @@
 import { NextFunction, Response } from "express";
+import { Monitor, Prisma } from "@prisma/client";
 
 import { CustomError, NotFoundError, TooManyRequestsError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
@@ -6,6 +7,7 @@ import { IRequestWithUser } from "../../types/utils.interface.js";
 import { createMonitor, deleteOneMonitor, getMonitors, getOneMonitor, updateOneMonitor } from "../../services/database/monitor/monitor.service.js";
 import { handleResponse } from "../../helper/response/handleResponse.js";
 import { updateUserMonitorCount } from "../../services/database/user/user.service.js";
+import { executeSingleMonitorHealthCheck } from "../../services/got/got.service.js";
 
 export const createMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -21,9 +23,7 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
     const user = req?.user;
 
     // Check if user has enough monitors or not
-    if (!user?.monitors || user.monitors <= 0) {
-      throw new TooManyRequestsError('You do not have enough monitor quota left. Please contact us if you want to upgrade your plan.')
-    }
+    if (!user?.monitors || user.monitors <= 0) return next(new TooManyRequestsError('You do not have enough monitor quota left. Please contact us if you want to upgrade your plan.'))
 
     const monitor = await createMonitor({
       name: name || new Date().toLocaleString() + '_' + user.email,
@@ -38,6 +38,9 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
     // Update usage
     await updateUserMonitorCount({ id: user.id }, -1);
 
+    // Execute first health check on new monitor 
+    await executeSingleMonitorHealthCheck(monitor as Monitor);
+
     return handleResponse(
       res,
       {
@@ -50,7 +53,7 @@ export const createMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ createMonitorController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while creating a monitor! Please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -81,7 +84,7 @@ export const getUserMonitorsController = async (req: IRequestWithUser, res: Resp
     console.log("🚀 ~ getUserMonitorsController ~ error:", error?.message || error);
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while fetching monitors data! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -91,12 +94,9 @@ export const getUserMonitorsController = async (req: IRequestWithUser, res: Resp
 export const getOneMonitorController = async (req: IRequestWithUser, res: Response, next: NextFunction): Promise<any> => {
   try {
     const user = req?.user;
-    const { id, reportStartDate, reportEndDate, reportOnly } = req?.query;
+    const { id, reportStartDate, reportEndDate, reportOnly, monitorOnly } = req?.query;
 
-    const monitor = await getOneMonitor({
-      user_id: user?.id,
-      id: id as string
-    }, (reportOnly == '1') ? { Report: true } : {
+    let projection: Prisma.MonitorSelect = {
       id: true,
       type: true,
       name: true,
@@ -108,12 +108,20 @@ export const getOneMonitorController = async (req: IRequestWithUser, res: Respon
       Report: true,
       createdAt: true,
       updatedAt: true
-    },
+    };
+
+    if (reportOnly == '1') projection = { Report: true }
+    else if (monitorOnly == '1') projection = { ...projection, Report: false }
+
+    const monitor = await getOneMonitor({
+      user_id: user?.id,
+      id: id as string
+    }, projection,
       reportStartDate ? new Date(reportStartDate as string) : undefined,
       reportEndDate ? new Date(reportEndDate as string) : undefined
     );
 
-    if (!monitor) throw new NotFoundError('Monitor with given id does not exists.')
+    if (!monitor) return next(new NotFoundError('Monitor with given id does not exists.'))
 
     return handleResponse(
       res,
@@ -126,7 +134,7 @@ export const getOneMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ getOneMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while fetching monitor data! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -152,6 +160,8 @@ export const updateMonitorController = async (req: IRequestWithUser, res: Respon
       type
     });
 
+    if (!updatedMonitor) return next(new NotFoundError('The monitor with given id does not exists'));
+
     return handleResponse(
       res,
       {
@@ -163,7 +173,7 @@ export const updateMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ updateMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while updating monitor data! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -180,7 +190,7 @@ export const deleteMonitorController = async (req: IRequestWithUser, res: Respon
       user_id: user?.id
     });
 
-    if (!monitor) throw new NotFoundError('The monitor with given id does not exists')
+    if (!monitor) return next(new NotFoundError('The monitor with given id does not exists'));
 
     return handleResponse(
       res,
@@ -193,7 +203,7 @@ export const deleteMonitorController = async (req: IRequestWithUser, res: Respon
     console.log("🚀 ~ deleteMonitorController ~ error:", error?.message || error)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while deleting monitor data! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )

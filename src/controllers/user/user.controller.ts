@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 
-import { CustomError } from "../../helper/errors/custom-errors.js";
+import { CustomError, NotFoundError } from "../../helper/errors/custom-errors.js";
 import { httpStatusCodes } from "../../constant/httpStatus/httpStatusCodes.constants.js";
 import { IRequestWithUser } from "../../types/utils.interface.js";
 import { getOneUser } from "../../services/database/user/user.service.js";
@@ -20,6 +20,8 @@ export const getOneUserController = async (req: IRequestWithUser, res: Response,
       avatar: true
     });
 
+    if (!userData) return next(new NotFoundError('This user does not exists'))
+
     return handleResponse(
       res,
       {
@@ -31,7 +33,7 @@ export const getOneUserController = async (req: IRequestWithUser, res: Response,
     console.log("🚀 ~ getUserById ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong while fetching user data! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )

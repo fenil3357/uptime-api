@@ -11,7 +11,7 @@ export const createReport = async (data: createReportType): Promise<Report | nul
   } catch (error: any) {
     console.log("🚀 ~ createReport ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while creating a new report',
+      'Something went wrong while creating a new report',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }
@@ -26,7 +26,7 @@ export const getOneReport = async (query: Prisma.ReportWhereInput, projection?: 
   } catch (error: any) {
     console.log("🚀 ~ getOneReport ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching one report',
+      'Something went wrong while fetching one report',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }
@@ -41,7 +41,7 @@ export const getReports = async (query: Prisma.ReportWhereInput, projection?: Pr
   } catch (error: any) {
     console.log("🚀 ~ getReports ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching reports',
+      'Something went wrong while fetching reports',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }
@@ -53,7 +53,7 @@ export const createReportsBulk = async (data: createReportType[]): Promise<Prism
   } catch (error: any) {
     console.log("🚀 ~ createReportsBulk ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while creating reports in bulk.',
+      'Something went wrong while creating reports in bulk.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }

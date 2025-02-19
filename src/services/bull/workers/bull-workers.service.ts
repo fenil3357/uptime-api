@@ -1,22 +1,17 @@
 import { Monitor } from "@prisma/client";
 import { Worker } from "bullmq";
 import pMap from 'p-map';
-import got, { Headers } from 'got'
 
 import { BULL_QUEUES } from "../../../constant/bull/bull.constants.js";
 import { getMonitors } from "../../database/monitor/monitor.service.js";
 import { createReportType } from "../../../types/report.types.js";
 import { createReportsBulk } from "../../database/report/report.service.js";
-import { isValidJson } from "../../../utils/isJson.js";
 import { redisConfig } from "../../../config/redis/redis.config.js";
-import { ENV_VALUES } from "../../../config/env/env.config.js";
-import { sendMessageToNotificationQueue } from "../../rabbitmq/rabbitmq.service.js";
-import generateErrorAnalysisPrompt from "../../../helper/prompts/errorAnalysis.prompt.js";
-import { generateChatCompletion } from "../../openai/openai.service.js";
+import { executeMonitorHealthCheck } from "../../got/got.service.js";
 
 export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
   BULL_QUEUES.REGULAR_MONITOR_CHECK_QUEUE,
-  async (job) => {
+  async () => {
     try {
       const monitors = await getMonitors({
         is_active: true
@@ -38,62 +33,7 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
 
       const results: createReportType[] = await pMap(
         monitors as (Monitor & { user: { name: string, email: string } })[],
-        async (monitor: Monitor & { user: { name: string, email: string } }): Promise<createReportType> => {
-          const { id, endpoint, method, headers, payload, name, type, user } = monitor;
-
-          try {
-            const response = await got(endpoint, {
-              method,
-              headers: (headers ? (headers as Headers) : undefined),
-              json: payload || undefined,
-              timeout: {
-                request: 10000, // 10 seconds
-              },
-            });
-
-            return {
-              monitor_id: id,
-              status: 'SUCCESS',
-              data: isValidJson(response?.body) ? JSON.parse(response?.body) : {},
-              message: isValidJson(response?.body) ? (JSON.parse(response?.body)?.message) : ((response?.statusMessage as string) || 'OK'),
-              statusCode: response.statusCode,
-              time_taken: response?.timings?.phases?.total as number
-            }
-          } catch (error: any) {
-            const errorMessage = isValidJson(error?.response?.body) ? (JSON.parse(error?.response?.body)?.message) : error.message;
-            const errorJson = isValidJson(error?.response?.body) ? JSON.parse(error?.response?.body) : {};
-
-            let errorAnalysis = undefined;
-            if (ENV_VALUES.AI_ENABLED) errorAnalysis = await generateChatCompletion(generateErrorAnalysisPrompt(errorMessage, errorJson));
-
-            await sendMessageToNotificationQueue({
-              type: 'ERROR',
-              content: {
-                endpoint,
-                monitorName: name as string,
-                monitorPageUrl: `${ENV_VALUES.CLIENT_ENDPOINT}/monitor?id=${id}`,
-                type,
-                userName: user.name,
-                userEmail: user.email,
-                errorReport: {
-                  time: new Date().toLocaleString(),
-                  errorMessage: errorMessage,
-                  errorJson: errorJson
-                },
-                errorAnalysis: errorAnalysis || undefined
-              }
-            });
-
-            return {
-              monitor_id: id,
-              status: 'ERROR',
-              data: errorJson,
-              message: errorMessage,
-              statusCode: error.response?.statusCode,
-              time_taken: error?.response?.timings?.phases?.total ? (error?.response?.timings?.phases?.total as number) : null
-            }
-          }
-        }
+        async (monitor: Monitor & { user: { name: string, email: string } }): Promise<createReportType> => await executeMonitorHealthCheck(monitor)
       );
 
       // Store the results as report

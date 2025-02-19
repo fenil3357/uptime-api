@@ -37,7 +37,7 @@ export const googleAuthController = async (req: Request, res: Response, next: Ne
     console.log("🚀 ~ googleAuthController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -50,9 +50,7 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
     // const state: any = req?.query?.state;
     // const stateData = JSON.parse(state);
 
-    if (!code) {
-      throw new UnAuthorizationError('Code not provided');
-    }
+    if (!code) return next(new UnAuthorizationError('Code not provided'));
 
     const oauth2Client = generateOauth2Client();
     const { tokens } = await oauth2Client.getToken(code as string);
@@ -118,7 +116,7 @@ export const googleAuthCallbackController = async (req: Request, res: Response, 
     console.log("🚀 ~ googleAuthCallbackController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
@@ -129,7 +127,7 @@ export const googleAuthEncryptionController = async (req: Request, res: Response
   try {
     const { encrypted } = req?.query;
 
-    if (!encrypted) throw new BadRequestError('Encrypted text not provided');
+    if (!encrypted) return next(new BadRequestError('Encrypted text not provided'));
 
     const data = decryption(encrypted as string);
 
@@ -145,7 +143,7 @@ export const googleAuthEncryptionController = async (req: Request, res: Response
     console.log("🚀 ~ googleAuthEncryptionController ~ error:", error?.message || error, error?.statusCode)
     return next(
       new CustomError(
-        'Something went wrong! please try again.',
+        error?.message || 'Something went wrong! please try again.',
         error?.statusCode || httpStatusCodes['Internal Server Error']
       )
     )
