@@ -22,20 +22,20 @@ export const getOneMonitor = async (query: Prisma.MonitorWhereInput, projection?
       where: query,
       select: {
         ...projection,
-        Report: {
+        Report: projection?.Report ? {
           where: {
             createdAt: {
               gte: reportStartDate,
               lte: reportEndDate
             }
           }
-        }
+        } : false
       }
     })
   } catch (error: any) {
     console.log("🚀 ~ getOneMonitor ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching monitor data.',
+      'Something went wrong while fetching monitor data.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -49,7 +49,7 @@ export const deleteOneMonitor = async (query: Prisma.MonitorWhereUniqueInput): P
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null;
     console.log("🚀 ~ deleteOneMonitor ~ error:", error);
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching deleting a monitor.',
+      'Something went wrong while fetching deleting a monitor.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -62,9 +62,11 @@ export const updateOneMonitor = async (query: Prisma.MonitorWhereUniqueInput, da
       where: query
     });
   } catch (error: any) {
+    // Custom handling for case : monitor does not exists
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null;
     console.log("🚀 ~ updateOneMonitor ~ error:", error?.message || error)
     throw new CustomError(
-      error?.message || 'Something went wrong while updating monitor data.',
+      'Something went wrong while updating monitor data.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     );
   }
@@ -102,7 +104,7 @@ export const getMonitors = async (query: Prisma.MonitorWhereInput, projection?: 
   } catch (error: any) {
     console.log("🚀 ~ getMonitors ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while fetching monitors.',
+      'Something went wrong while fetching monitors.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }
@@ -132,7 +134,7 @@ export const pauseRecentFailureMonitors = async () => {
   } catch (error: any) {
     console.log("🚀 ~ removeRecentFailureMonitors ~ error:", error?.message || error);
     throw new CustomError(
-      error?.message || 'Something went wrong while removing recent failed monitors.',
+      'Something went wrong while removing recent failed monitors.',
       error?.statusCode || httpStatusCodes['Internal Server Error']
     )
   }

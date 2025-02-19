@@ -45,7 +45,7 @@ export const REGULAR_MONITOR_CHECK_QUEUE_WORKER = new Worker(
             const response = await got(endpoint, {
               method,
               headers: (headers ? (headers as Headers) : undefined),
-              json: payload || undefined,
+              json: ((method === 'GET') ? undefined : (payload || undefined)),
               timeout: {
                 request: 10000, // 10 seconds
               },

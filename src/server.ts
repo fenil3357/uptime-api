@@ -28,7 +28,7 @@ app.use(express.urlencoded({
 }))
 app.use(rateLimit({
   windowMs: 10 * 60 * 1000,
-  limit: 50,
+  limit: 200,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   keyGenerator: (req: Request, _res: Response) => req?.ip as string,
